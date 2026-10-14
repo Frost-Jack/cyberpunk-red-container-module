@@ -1,3 +1,31 @@
 {
-    "MODULE.hello": "hello"
+  "CRC": {
+    "containers": "Containers",
+    "container": "Container",
+    "isContainer": "Is a container",
+    "itemsIncluded": "Items: {count}",
+    "toggle": "Expand or collapse container",
+    "toggleSection": "Expand or collapse containers",
+    "contents": "Items inside",
+    "preferences": {
+      "title": "Container position",
+      "open": "Configure position",
+      "hint": "Personal setting for the current user, shared across their characters and devices.",
+      "position": "Inventory position",
+      "top": "Top of inventory",
+      "bottom": "Bottom of inventory",
+      "after": "After {category}"
+    },
+    "errors": {
+      "permission": "You need ownership of both actors. Installed items must be uninstalled first.",
+      "cycle": "A container cannot contain itself or one of its parents.",
+      "busy": "An inventory transfer is already in progress. Please wait.",
+      "brokenInstallation": "An installed item is missing. Repair its installation before transferring.",
+      "sharedInstallation": "An item is also installed outside this container. Uninstall it there before transferring.",
+      "changed": "The source inventory changed during transfer. The transfer was cancelled.",
+      "incomplete": "The transfer was incomplete and has been rolled back.",
+      "recovery": "Recovery was incomplete. Items have been preserved; ask the GM to check both inventories before retrying.",
+      "failed": "Container operation failed. Check both inventories and the console before retrying."
+    }
+  }
 }

@@ -1,71 +1,59 @@
-![](https://img.shields.io/badge/Foundry-v10-informational)
-<!--- Downloads @ Latest Badge -->
-<!--- replace <user>/<repo> with your username/repository -->
-<!--- ![Latest Release Download Count](https://img.shields.io/github/downloads/<user>/<repo>/latest/module.zip) -->
+# Cyberpunk RED Containers
 
-<!--- Forge Bazaar Install % Badge -->
-<!--- replace <your-module-name> with the `name` in your manifest -->
-<!--- ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2F<your-module-name>&colorB=4aa94a) -->
+Контейнеры для Foundry VTT 12 и Cyberpunk RED CORE v0.92.4. Модуль добавляет раздел «Контейнеры» в полный лист персонажа, вложенное содержимое разных типов и передачу вещей вместе с контейнером.
 
+## Управление
 
-# How to use this Template to create a versioned Release
+Включите **Cyberpunk RED Containers** в настройках модулей мира и перезагрузите мир.
 
-1. Open your repository's releases page.
+- Создайте обычный Gear или откройте существующий. Внизу вкладки настроек, в отдельном разделе «Контейнер», включите флажок «Использовать как контейнер». Отдельных команд создания контейнера нет.
+- По умолчанию раздел «Контейнеры» расположен сразу после Armor. Нажатие на заголовок с `+`/`−` сворачивает или разворачивает весь раздел; это не меняет состояние отдельных сумок.
+- В настройках модулей откройте **Cyberpunk RED Containers → Положение контейнеров → Настроить положение**. Можно выбрать начало, конец инвентаря или место после любой штатной категории. Положение сохраняется в профиле текущего игрока и применяется к его открытым листам без перезагрузки. Сворачивание раздела сохраняется отдельно для игрока и персонажа.
+- Carryall автоматически считается контейнером. Распознаются исходный UUID компендиума, английское название и «Дорожная сумка». Флажок позволяет явно отключить этот статус.
+- Перетащите вещь на строку контейнера. Можно совместно хранить Weapon, Ammo, Armor и другие предметы инвентаря, а также вкладывать контейнеры друг в друга.
+- Стрелка слева сворачивает содержимое. Подпись «Предметы» (`Items` в английском интерфейсе) показывает количество непосредственно вложенных предметов, а не сумму их стеков.
+- Штатная стрелка у оружия и другого оборудования раскрывает установленные патроны, модификации и прочее содержимое внутри контейнера. Нажатие на установленный предмет открывает его штатный лист; действия установки и демонтажа остаются системными.
+- Для извлечения перетащите вещь на заголовок Gear или в свободную область инвентаря вне контейнеров. Вложенную сумку можно извлечь вместе с её содержимым или переложить в другую сумку. Вкладывать контейнер в самого себя или своего потомка нельзя.
+- Для передачи перетащите контейнер на лист другого персонажа. Нужны права владельца обоих персонажей; ведущий может выполнить передачу между игроками.
 
-![Where to click to open repository releases.](https://user-images.githubusercontent.com/7644614/93409301-9fd25080-f864-11ea-9e0c-bdd09e4418e4.png)
+Штатные действия предметов, изменение количества и открытие карточек сохраняются. В компактном листе mook отдельное дерево не выводится; для него можно выбрать полный лист персонажа.
 
-2. Click "Draft a new release"
+## Хранение И Отключение
 
-![Draft a new release button.](https://user-images.githubusercontent.com/7644614/93409364-c1333c80-f864-11ea-89f1-abfcb18a8d9f.png)
+«Контейнер» является статусом Gear и категорией интерфейса. В базе он остаётся обычным **Gear** с `flags.cyberpunk-red-container-module.container`. Это необходимо для отключения модуля: неизвестный системе новый `Item.type` мог бы сломать загрузку предмета.
 
-3. Fill out the release version as the tag name.
+Содержимое остаётся обычными embedded Item персонажа. Связь хранится в `flags.cyberpunk-red-container-module.parent`, а состояние сворачивания в `collapsed`. Модуль не меняет типы оружия, брони и патронов и не прячет данные внутрь JSON контейнера.
 
-If you want to add details at this stage you can, or you can always come back later and edit them.
+После отключения и перезагрузки штатный лист показывает вещи по исходным категориям. Количества и установленные модификации сохраняются. После повторного включения связи контейнеров восстанавливаются. Удаление контейнера оставляет его содержимое у персонажа; недействительные ссылки игнорируются. Снятие флажка контейнера также очищает ссылки его непосредственных детей.
 
-![Release Creation Form](https://user-images.githubusercontent.com/7644614/93409543-225b1000-f865-11ea-9a19-f1906a724421.png)
+## Передача
 
-4. Hit submit.
+Перенос включает вложенные контейнеры, их содержимое, установленные модификации и данные заряженного оружия. Новые ID назначаются заранее, связи переназначаются, автоматическое складывание CPR для этого пакета отключается. Сначала проверяется создание у получателя, затем удаляются исходники.
 
-5. Wait a few minutes.
+При неполном выполнении модуль восстанавливает удалённые этой операцией исходники и убирает созданные копии. Если сам откат отклонён другим модулем или сервером, выводится ошибка восстановления; оставшиеся копии сохраняются для проверки ведущим. Изменение исходных вещей во время создания отменяет перенос. Повторная передача из того же клиента блокируется до завершения операции.
 
-A Github Action will run to populate the `module.json` and `module.zip` with the correct urls that you can then use to distribute this release. You can check on its status in the "Actions" tab.
+Заряженные патроны учитываются отдельно от запаса. Если запас лежит вне сумки, он остаётся у отправителя, а для перенесённого оружия создаётся запись Ammo с нулевым запасом и сохранённым магазином. Если переносимая вещь также установлена в оставшемся у отправителя оборудовании, перенос отклоняется до демонтажа этой связи. Уже установленные предметы нельзя независимо помещать в сумку; переносите их вместе с оборудованием.
 
-![Actions Tab](https://user-images.githubusercontent.com/7644614/93409820-c1800780-f865-11ea-8c6b-c3792e35e0c8.png)
+Поддерживаются передачи между Actor типов `character` и `mook`, включая synthetic actors токенов. Торговля с Actor типа `container` использует штатную логику системы и не переносит дерево сумки. Хранение дерева содержимого в мировом предмете, экспорте одиночной сумки и компендиуме не реализовано: принадлежность вещей задаётся внутри инвентаря персонажа.
 
-6. Grab the module.json url from the release's details page.
+## Проверки
 
-![image](https://user-images.githubusercontent.com/7644614/93409960-10c63800-f866-11ea-83f6-270cc5d10b71.png)
+`npm test` запускает тесты логики без зависимостей. `npm run benchmark` измеряет построение индекса. Браузерная проверка запускается командой `node tests/browser-check.mjs` и использует установленную систему, её реальные шаблоны, генератор установленного содержимого, обработчики действий листа, CSS и Font Awesome. Операции документов, диалоги и действия самих предметов заменены тестовыми объектами. Для извлечения обработчиков стенд использует встроенный в Node.js 24 парсер Acorn.
 
-This `module.json` will only ever point at this release's `module.zip`, making it useful for sharing a specific version for compatibility purposes.
+Для другого компьютера задайте `FOUNDRY_APP` (папка `resources/app`) и `CODEX_NODE_MODULES` (папка, содержащая Playwright). Проверка запускает временный сервер на `127.0.0.1`, закрывает браузер и сервер после завершения и записывает снимки в `tests/artifacts/`.
 
-7. You can use the url `https://github.com/<user>/<repo>/releases/latest/download/module.json` to refer to the manifest.
+Индекс строится за O(n + e), где n — количество предметов, e — число связей установки. Нет таймеров, MutationObserver, фонового сканирования мира и запросов компендиумов при перерисовке. Изменяется DOM только открываемого полного листа. Подробные результаты и границы проверки: [REVIEW.md](REVIEW.md).
 
-This is the url you want to use to install the module typically, as it will get updated automatically.
+## API
 
-# How to List Your Releases on Package Admin
+`game.modules.get("cyberpunk-red-container-module").api` предоставляет `isContainer(item)`, `indexInventory(actor.items)`, `putInContainer(actor, item, parentId)` и `transferContainer(sourceActor, targetActor, item, parentId)`. `parentId` можно опустить, чтобы поместить предмет в корень инвентаря.
 
-To request a package listing for your first release, go to the [Package Submission Form](https://foundryvtt.com/packages/submit) (accessible via a link at the bottom of the "[Systems and Modules](https://foundryvtt.com/packages/)" page on the Foundry website).
+## Релиз 1.0
 
-Fill in the form. "Package Name" must match the name in the module manifest.  Package Title will be the display name for the package.  Package URL should be your repo URL.
-![image](https://user-images.githubusercontent.com/36359784/120664263-b49e5500-c482-11eb-9126-af7006389903.png)
+Основной тег релиза: `v1.0`. Версия в `module.json`: `1.0`. Workflow также принимает тег `1.0` и формирует ссылки с учётом фактического тега.
 
+При публикации GitHub Release workflow запускает тесты, проверяет версию и прикладывает `module.json` и `module.zip`. Архив содержит manifest в корне, рабочие скрипты, шаблон персональных настроек, стили, оба перевода, README, отчёт проверок и лицензию. Тесты и файлы GitHub Actions в установочный архив не входят. Дополнительные секреты не нужны: используется штатный `GITHUB_TOKEN` с правом `contents: write`.
 
-One of the Foundry staff will typically get back to you with an approval or any further questions within a few days, and give you access to the package admin pages.
+Ручной запуск **Actions → Build Module Release → Run workflow** проверяет сборку и сохраняет артефакты без публикации релиза. Локальная сборка: `python .github/scripts/build_release.py`; результат находится в `dist/`. Исходный `module.json` при сборке не изменяется. Для другой версии сначала обновите её в manifest, затем используйте совпадающий тег.
 
-Once you have access to the [module admin page](https://foundryvtt.com/admin/packages/package/), you can release a new version by going into the page for your module, scrolling to the bottom, and filling in a new Package Version.
-
-When listing a new version, Version should be the version number you set above, and the Manifest URL should be the manifest __for that specific version__ (do not use /latest/ here).
-![image](https://user-images.githubusercontent.com/36359784/120664346-c4b63480-c482-11eb-9d8b-731b50d70939.png)
-
-> ### :warning: Important :warning:
-> 
-> It is very important that you use the specific release manifest url, and not the `/latest` url here. For more details about why this is important and how Foundry Installs/Updates packages, read [this wiki article](https://foundryvtt.wiki/en/development/guides/releases-and-history).
-
-Clicking "Save" in the bottom right will save the new version, which means that anyone installing your module from within Foundry will get that version, and a post will be generated in the #release-announcements channel on the official Foundry VTT Discord.
-
-
-# FoundryVTT Module
-
-Does something, probably
-
-## Changelog
+Ссылка для установки через Foundry после публикации первого релиза: [module.json](https://github.com/Frost-Jack/cyberpunk-red-container-module/releases/latest/download/module.json).

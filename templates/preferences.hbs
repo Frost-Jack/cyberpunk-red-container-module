@@ -1,0 +1,13 @@
+<form autocomplete="off">
+  <div class="form-group">
+    <label for="crc-container-position">{{localize "CRC.preferences.position"}}</label>
+    <div class="form-fields">
+      <select id="crc-container-position" name="containerPosition">
+        {{selectOptions positions selected=containerPosition}}
+      </select>
+    </div>
+  </div>
+  <footer class="sheet-footer flexrow">
+    <button type="submit"><i class="fas fa-save"></i>{{localize "SETTINGS.Save"}}</button>
+  </footer>
+</form>

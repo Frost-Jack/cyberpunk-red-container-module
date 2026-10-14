@@ -1,0 +1,6 @@
+{
+  "name": "cyberpunk-red-container-module",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test tests/*.test.mjs", "benchmark": "node tests/benchmark.mjs" }
+}
